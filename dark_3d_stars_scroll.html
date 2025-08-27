@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Stars Scroll Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            height: 400vh; /* Make page scrollable */
+        }
+
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            perspective: 1000px;
+        }
+
+        .stars-field {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+            transform-origin: center;
+        }
+
+        .star::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .star.bright {
+            width: 3px;
+            height: 3px;
+            box-shadow: 
+                0 0 10px rgba(255, 255, 255, 1),
+                0 0 20px rgba(135, 206, 235, 0.5),
+                0 0 30px rgba(135, 206, 235, 0.3);
+            animation: pulse 3s ease-in-out infinite alternate;
+        }
+
+        .star.distant {
+            opacity: 0.3;
+            width: 1px;
+            height: 1px;
+        }
+
+        .content-section {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .content-section h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            letter-spacing: 3px;
+            font-weight: 300;
+        }
+
+        .content-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px rgba(135, 206, 235, 0.5);
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
+        .content-section p {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            color: #fff;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .scroll-arrow {
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, transparent, #fff);
+            margin: 10px auto;
+            animation: scrollBounce 2s ease-in-out infinite;
+        }
+
+        .nebula-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+
+        .nebula1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.4) 0%, transparent 70%);
+            top: 10%;
+            left: -10%;
+            animation: nebulaFloat 30s ease-in-out infinite;
+        }
+
+        .nebula2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 191, 255, 0.3) 0%, transparent 70%);
+            top: 50%;
+            right: -10%;
+            animation: nebulaFloat 25s ease-in-out infinite reverse;
+        }
+
+        .nebula3 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 20, 147, 0.2) 0%, transparent 70%);
+            bottom: -20%;
+            left: 20%;
+            animation: nebulaFloat 35s ease-in-out infinite;
+            animation-delay: -10s;
+        }
+
+        @keyframes pulse {
+            0% { 
+                opacity: 0.7; 
+                transform: scale(1);
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1.3);
+                box-shadow: 
+                    0 0 15px rgba(255, 255, 255, 1),
+                    0 0 30px rgba(135, 206, 235, 0.8),
+                    0 0 45px rgba(135, 206, 235, 0.5);
+            }
+        }
+
+        @keyframes scrollBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        @keyframes nebulaFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -50px) scale(1.1); }
+            50% { transform: translate(-20px, 30px) scale(0.9); }
+            75% { transform: translate(-40px, -20px) scale(1.05); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-section h1 {
+                font-size: 2.5rem;
+            }
+            .content-section h2 {
+                font-size: 2rem;
+            }
+            .content-section p {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Hide scroll indicator after first section */
+        .content-section:not(:first-child) ~ .scroll-indicator {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-container">
+        <div class="stars-field" id="starsField"></div>
+    </div>
+
+    <div class="nebula-bg">
+        <div class="nebula nebula1"></div>
+        <div class="nebula nebula2"></div>
+        <div class="nebula nebula3"></div>
+    </div>
+
+    <section class="content-section">
+        <div>
+            <h1>GALACTIC JOURNEY</h1>
+            <p>Mulai perjalanan menakjubkan melalui alam semesta yang tak terbatas. Rasakan pengalaman 3D yang memukau saat Anda menjelajahi kedalaman ruang angkasa.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div>
+            <h2>STELLAR EXPLORATION</h2>
+            <p>Setiap guliran membawa Anda lebih dalam ke galaksi yang penuh misteri. Bintang-bintang bergerak dalam dimensi tiga, menciptakan ilusi kedalaman yang luar biasa.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div>
+            <h2>COSMIC DEPTHS</h2>
+            <p>Teknologi 3D modern memungkinkan kita merasakan pergerakan bintang yang realistis. Efek paralaks memberikan sensasi terbang melalui ruang angkasa.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div>
+            <h2>INFINITE UNIVERSE</h2>
+            <p>Akhiri perjalanan Anda di ujung alam semesta, di mana bintang-bintang terjauh bersinar redup namun penuh harapan. Scroll kembali ke atas untuk mengulang petualangan kosmik Anda.</p>
+        </div>
+    </section>
+
+    <div class="scroll-indicator">
+        <div>Scroll untuk menjelajahi</div>
+        <div class="scroll-arrow"></div>
+    </div>
+
+    <script>
+        class Star3D {
+            constructor(x, y, z) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.element = document.createElement('div');
+                this.element.className = 'star';
+                
+                // Random star properties
+                if (Math.random() < 0.1) {
+                    this.element.classList.add('bright');
+                }
+                if (this.z > 800) {
+                    this.element.classList.add('distant');
+                }
+                
+                document.getElementById('starsField').appendChild(this.element);
+                this.update();
+            }
+
+            update() {
+                // Calculate perspective projection
+                const perspective = 1000;
+                const scale = perspective / (perspective + this.z);
+                const x2d = (this.x * scale) + window.innerWidth / 2;
+                const y2d = (this.y * scale) + window.innerHeight / 2;
+                
+                // Apply 3D transformations
+                this.element.style.transform = `
+                    translate3d(${x2d}px, ${y2d}px, 0)
+                    scale(${scale})
+                `;
+                
+                // Adjust opacity based on distance
+                const opacity = Math.max(0.1, 1 - this.z / 1000);
+                this.element.style.opacity = opacity;
+                
+                // Add glow effect for closer stars
+                if (this.z < 300) {
+                    const glowIntensity = (300 - this.z) / 300;
+                    this.element.style.boxShadow = `
+                        0 0 ${6 + glowIntensity * 20}px rgba(255, 255, 255, ${0.8 + glowIntensity * 0.2}),
+                        0 0 ${glowIntensity * 30}px rgba(135, 206, 235, ${glowIntensity * 0.5})
+                    `;
+                }
+            }
+
+            moveTowards(camera) {
+                this.z -= camera.speed;
+                
+                // Reset star position when it goes behind camera
+                if (this.z <= -50) {
+                    this.z = 1000;
+                    this.x = (Math.random() - 0.5) * 2000;
+                    this.y = (Math.random() - 0.5) * 2000;
+                }
+                
+                this.update();
+            }
+        }
+
+        class StarField3D {
+            constructor(numStars) {
+                this.stars = [];
+                this.camera = {
+                    speed: 0,
+                    targetSpeed: 0
+                };
+                
+                // Create stars
+                for (let i = 0; i < numStars; i++) {
+                    const star = new Star3D(
+                        (Math.random() - 0.5) * 2000,
+                        (Math.random() - 0.5) * 2000,
+                        Math.random() * 1000
+                    );
+                    this.stars.push(star);
+                }
+                
+                this.animate();
+                this.setupScrollListener();
+            }
+
+            setupScrollListener() {
+                let ticking = false;
+                
+                window.addEventListener('scroll', () => {
+                    if (!ticking) {
+                        requestAnimationFrame(() => {
+                            this.updateCameraFromScroll();
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                });
+            }
+
+            updateCameraFromScroll() {
+                const scrollPercent = window.pageYOffset / (document.body.scrollHeight - window.innerHeight);
+                const maxSpeed = 15;
+                
+                // Calculate target speed based on scroll position
+                this.camera.targetSpeed = scrollPercent * maxSpeed;
+                
+                // Add scroll velocity effect
+                const scrollVelocity = Math.abs(window.pageYOffset - (this.lastScrollY || 0));
+                this.camera.targetSpeed += Math.min(scrollVelocity * 0.5, 20);
+                
+                this.lastScrollY = window.pageYOffset;
+            }
+
+            animate() {
+                // Smooth camera movement
+                this.camera.speed += (this.camera.targetSpeed - this.camera.speed) * 0.1;
+                
+                // Update all stars
+                this.stars.forEach(star => {
+                    star.moveTowards(this.camera);
+                });
+                
+                // Add rotation effect based on scroll
+                const starsField = document.getElementById('starsField');
+                const scrollPercent = window.pageYOffset / (document.body.scrollHeight - window.innerHeight);
+                const rotation = scrollPercent * 360;
+                
+                starsField.style.transform = `
+                    rotateZ(${rotation * 0.1}deg)
+                    rotateX(${Math.sin(scrollPercent * Math.PI) * 10}deg)
+                    rotateY(${scrollPercent * 20}deg)
+                `;
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // Initialize star field
+        const starField = new StarField3D(300);
+
+        // Add mouse interaction for additional 3D effect
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            const mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            
+            const starsField = document.getElementById('starsField');
+            const currentTransform = starsField.style.transform;
+            
+            starsField.style.transform = currentTransform + ` 
+                rotateY(${mouseX * 5}deg) 
+                rotateX(${-mouseY * 5}deg)
+            `;
+        });
+
+        // Smooth scroll effect
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Hide scroll indicator after user starts scrolling
+        let hasScrolled = false;
+        window.addEventListener('scroll', () => {
+            if (!hasScrolled) {
+                hasScrolled = true;
+                document.querySelector('.scroll-indicator').style.opacity = '0';
+                setTimeout(() => {
+                    document.querySelector('.scroll-indicator').style.display = 'none';
+                }, 500);
+            }
+        });
+
+        // Performance optimization for mobile
+        if (window.innerWidth <= 768) {
+            // Reduce star count on mobile
+            starField.stars = starField.stars.slice(0, 150);
+        }
+    </script>
+</body>
+</html>
